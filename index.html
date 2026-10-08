@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jacquard · weave your name</title>
+    <meta name="description" content="Type your name and watch a 3D Jacquard loom weave it into damask, bit by bit: the punch-card loom that inspired the first computers." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="mark" href="/">Jacquard</a>
+      <span class="top-note">A loom, a punch card, your name</span>
+    </header>
+
+    <main>
+      <section class="stage">
+        <div id="loom" class="loom" aria-label="3D loom weaving your name"></div>
+
+        <div class="panel">
+          <p class="eyebrow">Since 1804</p>
+          <h1>Weave your name.</h1>
+          <p class="lead">Every letter becomes eight bits. Every bit lifts a thread. Watch your name woven into damask on the loom that taught machines to follow a program.</p>
+
+          <form id="form" class="form" autocomplete="off">
+            <label for="name" class="sr-only">Your name</label>
+            <input id="name" name="name" maxlength="20" placeholder="Your name" spellcheck="false" />
+            <button type="submit">Weave</button>
+          </form>
+          <p id="binary" class="binary" aria-live="polite"></p>
+
+          <div class="palettes" role="radiogroup" aria-label="Thread colours" id="palettes"></div>
+
+          <button id="download" class="ghost" type="button" disabled>Download your cloth</button>
+        </div>
+
+        <div class="card" aria-label="Punch card for the current row">
+          <div class="card-head">
+            <span>Punch card</span>
+            <span id="card-count" class="mono">— / —</span>
+          </div>
+          <div id="card-holes" class="card-holes" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <section class="story">
+        <p class="eyebrow">Where code comes from</p>
+        <h2>The first program was a pattern.</h2>
+        <ol class="timeline">
+          <li>
+            <span class="year">1804</span>
+            <h3>The Jacquard loom</h3>
+            <p>Joseph Marie Jacquard patents a loom driven by a chain of punched cards. A hole lifts a thread, no hole leaves it down, and a sequence of cards weaves any pattern, again and again.</p>
+          </li>
+          <li>
+            <span class="year">1843</span>
+            <h3>Ada Lovelace</h3>
+            <p>Writing about Babbage's Analytical Engine, which was to read its instructions from Jacquard-style cards, Lovelace notes that it “weaves algebraical patterns just as the Jacquard loom weaves flowers and leaves.”</p>
+          </li>
+          <li>
+            <span class="year">1890</span>
+            <h3>Hollerith's tabulator</h3>
+            <p>Herman Hollerith's punched-card machines count the United States census. His company later becomes part of IBM, and punch cards run computing for most of the next century.</p>
+          </li>
+          <li>
+            <span class="year">Now</span>
+            <h3>This page</h3>
+            <p>Your name is turned into bytes, the bytes into a punch card, and the card into a damask: figure and ground woven in opposite twills, mirrored like a textile repeat. Built by a textile designer who became a software engineer.</p>
+          </li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Built by <a href="https://portfolio-anu-sirkas-projects.vercel.app">Anu Sirkas</a> · Three.js, TypeScript, Vite ·
+      <a href="https://github.com/anusirkas/jacquard">Source</a>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
