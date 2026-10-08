@@ -1,5 +1,7 @@
 # Jacquard
 
+**Live:** https://jacquard-loom.vercel.app
+
 Type your name and watch a 3D loom weave it into damask, bit by bit. A small tribute to the punch-card loom that taught machines to follow a program, built by a textile designer who became a software engineer.
 
 ![The loom weaving “Ada Lovelace” in indigo and cream, with the punch card for the current row](docs/loom.webp)
