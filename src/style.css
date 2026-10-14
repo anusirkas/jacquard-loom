@@ -8,8 +8,10 @@
   --brass: #d6a85c;
   --card: #efe6cf;
   --card-ink: #3b2f1e;
-  --sans: "Space Grotesk", system-ui, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, monospace;
+  /* IBM Plex for the punch-card lineage, Big Shoulders for the iron of the machine */
+  --display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
   color-scheme: dark;
 }
 
@@ -68,9 +70,11 @@ a {
 }
 
 .mark {
-  font-weight: 700;
-  font-size: 20px;
-  letter-spacing: 0.02em;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   text-decoration: none;
 }
 
@@ -100,9 +104,11 @@ a {
   padding: 90px clamp(16px, 4vw, 48px) 170px;
 }
 
+/* exactly one screen tall, so the whole loom fits however tall the text column gets */
 .loom {
   position: absolute;
-  inset: 0;
+  inset: 0 0 auto;
+  height: 100svh;
   z-index: 0;
 }
 
@@ -120,9 +126,12 @@ a {
 
 h1 {
   margin: 0;
-  font-size: clamp(44px, 6vw, 80px);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(64px, 8.5vw, 124px);
+  line-height: 0.86;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
 }
 
 .lead {
@@ -209,8 +218,25 @@ h1 {
   border-color: var(--ink);
 }
 
-.ghost {
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-top: 26px;
+}
+
+.side {
+  min-height: 1.5em;
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--brass);
+}
+
+.loom canvas {
+  touch-action: pan-y;
+}
+
+.ghost {
   padding: 12px 20px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -282,9 +308,11 @@ h1 {
 .story h2 {
   margin: 0;
   max-width: 14ch;
-  font-size: clamp(36px, 5vw, 64px);
-  line-height: 1;
-  letter-spacing: -0.03em;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(48px, 6.5vw, 88px);
+  line-height: 0.9;
+  text-transform: uppercase;
 }
 
 .timeline {
@@ -309,7 +337,11 @@ h1 {
 
 .timeline h3 {
   margin: 8px 0 0;
-  font-size: 20px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .timeline p {

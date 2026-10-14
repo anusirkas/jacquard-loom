@@ -17,14 +17,19 @@ The logic lives in [`src/weave.ts`](src/weave.ts) and is unit-tested, including 
 
 ## The loom
 
-[`src/loom.ts`](src/loom.ts) is plain Three.js:
+[`src/loom.ts`](src/loom.ts) is plain Three.js, built to show cause and effect:
 
-- the cloth is one `InstancedMesh` of 4,096 capsules, one per crossing: standing up in the warp colour where the warp is on top, lying across in the weft colour where the weft is;
-- warp threads are line segments from the fell of the cloth up to the back beam, and get shorter as the cloth grows;
-- a shuttle carries the weft across and the reed beats each row in;
-- the camera drifts towards the pointer, and everything stops for reduced-motion users.
+- **Card → cord → thread.** A chain of punch cards steps through the Jacquard head, one card per row. Harness cords run from the head to every warp thread; the ones the current card has holes for light up brass and pull their threads forward, opening the shed the shuttle passes through.
+- **The cloth** is two `InstancedMesh` layers of 4,096 capsules each, front and back. A damask is reversible: wherever the warp shows on the front, the weft shows on the back, so the back carries the same name in reversed colours.
+- **Off the loom.** When the last row is beaten in, the cloth comes off, ripples in the air (a vertex shader adds a wave that grows away from the top edge) and turns to show its back. Drag it, or press *Turn the cloth*, to turn it again.
+- Only the row being woven is re-placed and uploaded to the GPU each frame; everything else stays put.
+- Motion stops for visitors who prefer reduced motion: the cloth appears finished and stays still.
+
+![The finished cloth off the loom, turned to show its back in reversed colours](docs/back.webp)
 
 The finished cloth can be downloaded as a PNG, drawn flat thread by thread in [`src/export.ts`](src/export.ts). A link with `?name=` weaves that name.
+
+Type is IBM Plex, a nod to the punch-card lineage, with Big Shoulders Display for the machine.
 
 ## Stack
 

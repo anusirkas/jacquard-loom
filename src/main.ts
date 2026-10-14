@@ -14,6 +14,8 @@ const input = $<HTMLInputElement>("#name");
 const binary = $("#binary");
 const palettesEl = $("#palettes");
 const downloadButton = $<HTMLButtonElement>("#download");
+const turnButton = $<HTMLButtonElement>("#turn");
+const sideNote = $("#side");
 const cardHoles = $("#card-holes");
 const cardCount = $("#card-count");
 
@@ -38,6 +40,15 @@ const loom = new Loom($("#loom"), {
   },
   onDone: () => {
     downloadButton.disabled = false;
+    turnButton.disabled = false;
+    sideNote.textContent = "Off the loom. Drag the cloth to turn it.";
+  },
+  onSide: (side) => {
+    // a damask is reversible: the back shows the same name in swapped colours
+    sideNote.textContent =
+      side === "back"
+        ? "The back: the same name in reversed colours. Damask is reversible."
+        : "The front: warp-faced figure on a weft-faced ground.";
   },
 });
 
@@ -51,6 +62,8 @@ function weave(text: string) {
   cells = draft(nameToBits(name), ROWS, COLS, BLOCK);
   showBinary(name);
   downloadButton.disabled = true;
+  turnButton.disabled = true;
+  sideNote.textContent = "";
   loom.weave(cells, palette);
   const url = new URL(location.href);
   url.searchParams.set("name", name);
@@ -80,6 +93,8 @@ form.addEventListener("submit", (event) => {
   weave(input.value);
 });
 
+turnButton.addEventListener("click", () => loom.turnOver());
+
 downloadButton.addEventListener("click", () => {
   const filename = `jacquard-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "cloth"}.png`;
   download(clothImage(cells, ROWS, COLS, palette, name), filename);
@@ -89,3 +104,4 @@ downloadButton.addEventListener("click", () => {
 const initial = new URL(location.href).searchParams.get("name") ?? "";
 input.value = initial;
 weave(initial || "Ada Lovelace");
+
