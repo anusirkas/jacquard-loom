@@ -1,3 +1,4 @@
+import { Cosmos, type Prop } from "./cosmos";
 import { clothImage, download } from "./export";
 import { Loom } from "./loom";
 import { cardRow, draft, FALLBACK_NAME, nameToBits, PALETTES, type Palette } from "./weave";
@@ -52,6 +53,48 @@ const loom = new Loom($("#loom"), {
   },
 });
 
+// ---------- the fibre cosmos behind the page, with one prop per era ----------
+const cosmos = new Cosmos($("#cosmos"));
+for (const era of document.querySelectorAll<HTMLElement>(".era")) {
+  cosmos.anchor(era.querySelector<HTMLElement>(".era-prop")!, era.dataset.prop as Prop);
+}
+document.fonts?.ready.then(() => cosmos.refresh());
+
+// eras slide in from their side of the thread as they come into view
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const eras = [...document.querySelectorAll<HTMLElement>(".era")];
+if (!reducedMotion) {
+  const reveal = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.remove("waiting");
+        entry.target.classList.add("in");
+        reveal.unobserve(entry.target);
+      }
+    },
+    { rootMargin: "0px 0px -25% 0px" },
+  );
+  for (const era of eras) {
+    if (era.getBoundingClientRect().top > window.innerHeight) era.classList.add("waiting");
+    reveal.observe(era);
+  }
+} else {
+  for (const era of eras) era.classList.add("in");
+}
+
+// the thread fills in brass as far as you have read
+const threadLine = $(".thread-line");
+const threadFill = $("#thread-fill");
+const updateThread = () => {
+  const rect = threadLine.getBoundingClientRect();
+  const progress = Math.min(1, Math.max(0, (window.innerHeight * 0.6 - rect.top) / rect.height));
+  threadFill.style.setProperty("--progress", progress.toFixed(4));
+};
+window.addEventListener("scroll", updateThread, { passive: true });
+window.addEventListener("resize", updateThread);
+updateThread();
+
 function showBinary(text: string) {
   const bytes = [...new TextEncoder().encode(text)].map((b) => b.toString(2).padStart(8, "0"));
   binary.textContent = `${text} → ${bytes.slice(0, 6).join(" ")}${bytes.length > 6 ? " …" : ""}`;
@@ -65,6 +108,7 @@ function weave(text: string) {
   turnButton.disabled = true;
   sideNote.textContent = "";
   loom.weave(cells, palette);
+  cosmos.setSwatch(cells, ROWS, COLS, palette.warp, palette.weft);
   const url = new URL(location.href);
   url.searchParams.set("name", name);
   history.replaceState(null, "", url);
@@ -84,6 +128,7 @@ for (const p of PALETTES) {
     palette = p;
     for (const b of palettesEl.children) b.setAttribute("aria-checked", String(b === button));
     loom.setPalette(p);
+    cosmos.setSwatch(cells, ROWS, COLS, p.warp, p.weft);
   });
   palettesEl.appendChild(button);
 }

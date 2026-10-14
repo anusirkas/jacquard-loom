@@ -12,6 +12,8 @@
   --display: "Big Shoulders Display", "Arial Narrow", sans-serif;
   --sans: "IBM Plex Sans", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
+  /* left edge of a centred 1200px content column: text, header and card all start here */
+  --edge: max(clamp(16px, 4vw, 48px), calc((100vw - 1200px) / 2));
   color-scheme: dark;
 }
 
@@ -66,7 +68,7 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 22px clamp(16px, 4vw, 48px);
+  padding: 22px var(--edge);
 }
 
 .mark {
@@ -101,7 +103,7 @@ a {
   display: grid;
   grid-template-columns: minmax(320px, 440px) 1fr;
   align-items: center;
-  padding: 90px clamp(16px, 4vw, 48px) 170px;
+  padding: 90px var(--edge) 170px;
 }
 
 /* exactly one screen tall, so the whole loom fits however tall the text column gets */
@@ -260,7 +262,7 @@ h1 {
 /* ---------- Punch card ---------- */
 .card {
   position: absolute;
-  left: clamp(16px, 4vw, 48px);
+  left: var(--edge);
   bottom: 32px;
   z-index: 2;
   width: min(440px, calc(100% - 32px));
@@ -298,15 +300,43 @@ h1 {
   background: #1a140b;
 }
 
-/* ---------- Story ---------- */
+/* ---------- Cosmos: the fixed 3D layer behind the whole page ---------- */
+.cosmos {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cosmos canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* page content sits above the cosmos (the header is already positioned, above everything) */
+main,
+.footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Story: a timeline hung on a single thread ---------- */
 .story {
-  max-width: 1100px;
+  position: relative;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: clamp(64px, 10vw, 140px) clamp(16px, 4vw, 48px);
+  padding: clamp(80px, 12vw, 160px) var(--edge) clamp(80px, 10vw, 140px);
+}
+
+.story-head {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .story h2 {
-  margin: 0;
+  margin: 0 auto;
   max-width: 14ch;
   font-family: var(--display);
   font-weight: 800;
@@ -315,18 +345,105 @@ h1 {
   text-transform: uppercase;
 }
 
+/* the thread: a faint warp line, filled in brass as you scroll */
+.thread-line {
+  position: absolute;
+  left: 50%;
+  top: clamp(300px, 34vw, 420px);
+  bottom: 60px;
+  width: 2px;
+  translate: -1px 0;
+  background: repeating-linear-gradient(180deg, rgba(244, 241, 234, 0.18) 0 6px, transparent 6px 10px);
+}
+
+.thread-fill {
+  display: block;
+  width: 100%;
+  height: calc(var(--progress, 0) * 100%);
+  background: linear-gradient(180deg, var(--brass), #f1cf8e);
+  box-shadow: 0 0 12px rgba(214, 168, 92, 0.6);
+}
+
 .timeline {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 32px;
-  margin: 56px 0 0;
+  position: relative;
+  margin: clamp(80px, 10vw, 140px) 0 0;
   padding: 0;
   list-style: none;
 }
 
-.timeline li {
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
+.era {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  min-height: 62svh;
+}
+
+.knot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  translate: -50% -50%;
+  border: 2px solid var(--brass);
+  border-radius: 50%;
+  background: var(--bg);
+  transition: background 0.4s, box-shadow 0.4s;
+}
+
+.era.in .knot {
+  background: var(--brass);
+  box-shadow: 0 0 0 6px rgba(214, 168, 92, 0.18);
+}
+
+.era-card {
+  max-width: 420px;
+  padding: 26px 28px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(14, 14, 16, 0.72);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), translate 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* odd eras hang left of the thread, even ones right; each slides in from its own side */
+.era:nth-child(odd) .era-card {
+  grid-column: 1;
+  justify-self: end;
+  margin-right: 56px;
+}
+
+.era:nth-child(even) .era-card {
+  grid-column: 2;
+  justify-self: start;
+  margin-left: 56px;
+}
+
+.era-prop {
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+  width: 260px;
+  height: 260px;
+}
+
+.era:nth-child(odd) .era-prop {
+  grid-column: 2;
+}
+
+.era:nth-child(even) .era-prop {
+  grid-column: 1;
+}
+
+.era.waiting:nth-child(odd) .era-card {
+  opacity: 0;
+  translate: -70px 0;
+}
+
+.era.waiting:nth-child(even) .era-card {
+  opacity: 0;
+  translate: 70px 0;
 }
 
 .year {
@@ -335,16 +452,16 @@ h1 {
   color: var(--brass);
 }
 
-.timeline h3 {
+.era h3 {
   margin: 8px 0 0;
   font-family: var(--display);
   font-weight: 700;
-  font-size: 28px;
+  font-size: 34px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
-.timeline p {
+.era p {
   margin: 10px 0 0;
   font-size: 15px;
   color: var(--muted);
@@ -383,15 +500,26 @@ h1 {
   .card-holes {
     gap: 1px;
   }
-  .timeline {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  .thread-line,
+  .knot {
+    left: 20px;
+  }
+  .era {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: 28px 0;
+  }
+  .era:nth-child(n) .era-card {
+    grid-column: 1;
+    justify-self: stretch;
+    margin: 0 0 0 44px;
+  }
+  .era-prop {
+    display: none;
   }
 }
 
 @media (max-width: 560px) {
-  .timeline {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .top-note {
     display: none;
   }
