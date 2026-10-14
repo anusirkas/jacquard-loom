@@ -137,15 +137,22 @@ export class Cosmos {
         [(edge + 480) / w, 0.5],
         [0.9, 1],
       ];
-      for (let i = 0; i < 30; i++) {
-        const [from, to] = lanes[i % lanes.length];
+      // sparse on purpose: the loom is the subject up here. The middle lane, between the text
+      // and the loom, only gets light threads and cards, no yarn balls.
+      const plan: [lane: number, kind: number][] = [
+        [0, 0], [0, 2], [0, 1], [0, 0],
+        [1, 0], [1, 2], [1, 0],
+        [2, 2], [2, 1], [2, 0], [2, 2],
+      ];
+      plan.forEach(([lane, kind], i) => {
+        const [from, to] = lanes[lane];
         const z = -11 + Math.random() * 8; // mid-depth: close enough to read as 3D, small enough to stay in its lane
         const fx = from + Math.random() * (to - from);
-        const fy = Math.random() * 1.05;
+        const fy = 0.05 + Math.random() * 0.95;
         const x = (fx - 0.5) * 2 * halfWidth * depthScale(z);
         const y = (0.5 - fy) * screenHeight * depthScale(z);
-        this.addDrifter(this.drifter(i), x, y, z);
-      }
+        this.addDrifter(this.drifter(i * 3 + kind), x, y, z);
+      });
     }
 
     // the rest of the page, below the first screen
@@ -157,7 +164,7 @@ export class Cosmos {
       this.addDrifter(this.drifter(i), (Math.random() - 0.5) * 2 * spread, y, z);
     }
     // and a few far back across the whole first screen, for depth behind the loom
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       const z = -16 + Math.random() * 5;
       this.addDrifter(this.drifter(i), (Math.random() - 0.5) * 2 * halfWidth * depthScale(z), (0.5 - Math.random()) * screenHeight * depthScale(z), z);
     }
