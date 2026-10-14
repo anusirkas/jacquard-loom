@@ -326,7 +326,8 @@ main,
   position: relative;
   max-width: 1200px;
   margin: 0 auto;
-  padding: clamp(80px, 12vw, 160px) var(--edge) clamp(80px, 10vw, 140px);
+  /* already centred by max-width, so only a small gutter here (not --edge, which is wide on big screens) */
+  padding: clamp(80px, 12vw, 160px) clamp(16px, 4vw, 48px) clamp(80px, 10vw, 140px);
 }
 
 .story-head {
