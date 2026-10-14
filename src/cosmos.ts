@@ -63,9 +63,14 @@ export class Cosmos {
   private anchors: Anchor[] = [];
   private unitsPerPixel = 1;
   private frame = 0;
-  private clock = new THREE.Clock();
+  private timer = new THREE.Timer();
   private swatchTexture: THREE.CanvasTexture | null = null;
   private readonly reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /** With reduced motion only the scroll moves things, so only draw when it (or the layout) changes. */
+  private dirty = true;
+  private markDirty = () => {
+    this.dirty = true;
+  };
 
   constructor(private canvasHost: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -80,6 +85,7 @@ export class Cosmos {
     this.scene.add(key);
 
     window.addEventListener("resize", this.fit);
+    window.addEventListener("scroll", this.markDirty, { passive: true });
     this.fit();
     this.populate();
     this.loop();
@@ -226,6 +232,7 @@ export class Cosmos {
       }
     }
     this.swatchTexture.needsUpdate = true;
+    this.dirty = true;
   }
 
   private fit = () => {
@@ -236,6 +243,7 @@ export class Cosmos {
     this.camera.updateProjectionMatrix();
     this.unitsPerPixel = (2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * CAMERA_Z) / h;
     this.place();
+    this.dirty = true;
   };
 
   /** Converts each anchor element's page position into world space at depth 0. */
@@ -254,7 +262,10 @@ export class Cosmos {
 
   private loop = () => {
     this.frame = requestAnimationFrame(this.loop);
-    const t = this.clock.getElapsedTime();
+    if (this.reducedMotion && !this.dirty) return;
+    this.dirty = false;
+    this.timer.update();
+    const t = this.timer.getElapsed();
     this.camera.position.set(0, -window.scrollY * this.unitsPerPixel, CAMERA_Z);
 
     if (!this.reducedMotion) {
@@ -277,11 +288,13 @@ export class Cosmos {
   /** Re-measures anchors after layout changes (fonts loading, images, resize). */
   refresh() {
     this.place();
+    this.dirty = true;
   }
 
   dispose() {
     cancelAnimationFrame(this.frame);
     window.removeEventListener("resize", this.fit);
+    window.removeEventListener("scroll", this.markDirty);
     this.renderer.dispose();
     this.canvasHost.removeChild(this.renderer.domElement);
   }

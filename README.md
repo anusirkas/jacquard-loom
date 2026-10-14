@@ -29,7 +29,21 @@ The logic lives in [`src/weave.ts`](src/weave.ts) and is unit-tested, including 
 
 The finished cloth can be downloaded as a PNG, drawn flat thread by thread in [`src/export.ts`](src/export.ts). A link with `?name=` weaves that name.
 
+## The page around it
+
+- **A fibre cosmos.** [`src/cosmos.ts`](src/cosmos.ts) is a second, fixed Three.js layer behind the whole page: loose threads, yarn balls and stray punch cards at different depths. The camera moves down exactly as fast as the page scrolls, so things further back drift slower and closer ones faster. Near the loom they keep to the open lanes beside the text, so nothing crosses the cloth.
+- **A timeline hung on a thread.** The history below the loom hangs on a single warp thread that fills in brass as you read. Each era slides in from its side, and a 3D prop is pinned beside it by measuring the page element's position: a chain of laced cards (1804), two meshing brass gears turning at the right ratio (1843), a fanned stack of tabulator cards (1890) and a swatch of the cloth you just wove (now).
+
+![The timeline: the 1804 card sits on the brass thread, with a chain of punch cards beside it](docs/timeline.webp)
+
 Type is IBM Plex, a nod to the punch-card lineage, with Big Shoulders Display for the machine.
+
+## Tests
+
+- **Unit** (Vitest, `npm test`): the bits, the draft, the satin, mirroring and binding.
+- **End to end** (Playwright, `npm run test:e2e`, desktop and mobile): weaving from a shared link, a new name updating the link, the empty-name fallback, turning the cloth over and back, the PNG download and its filename, the colour picker, and each era of the timeline coming in as you scroll. They run with reduced motion, so the loom finishes at once.
+
+Both run in CI on every push.
 
 ## Stack
 
@@ -41,5 +55,6 @@ Three.js · TypeScript · Vite · Vitest · no framework
 npm install
 npm run dev
 npm test
+npm run test:e2e
 npm run build
 ```

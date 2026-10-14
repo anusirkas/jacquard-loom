@@ -42,7 +42,7 @@ export class Loom {
   private uniforms = { uTime: { value: 0 }, uWave: { value: 0 }, uTop: { value: 0 }, uHeight: { value: 1 } };
   private resize: ResizeObserver;
   private frame = 0;
-  private clock = new THREE.Clock();
+  private timer = new THREE.Timer();
   private pointer = new THREE.Vector2();
   private cells: Uint8Array = new Uint8Array();
   private progress = 0; // rows woven, fractional
@@ -53,6 +53,8 @@ export class Loom {
   private turnTarget = 0;
   private drag: { x: number; turn: number } | null = null;
   private side: "front" | "back" = "front";
+  /** With reduced motion nothing animates, so only draw when something has changed. */
+  private dirty = true;
   private readonly rows: number;
   private readonly cols: number;
   private readonly width: number;
@@ -172,6 +174,7 @@ export class Loom {
     for (const card of this.cards) card.row = -1;
     this.setPalette(palette);
     this.layout(true);
+    this.dirty = true;
   }
 
   /** Recolours the cloth in place, without re-weaving. */
@@ -186,12 +189,15 @@ export class Loom {
     for (const layer of [this.front, this.back]) if (layer.instanceColor) layer.instanceColor.needsUpdate = true;
     (this.warp.material as THREE.LineBasicMaterial).color.copy(warp);
     (this.backing.material as THREE.MeshStandardMaterial).color.copy(warp.clone().lerp(weft, 0.5).multiplyScalar(0.4));
+    this.dirty = true;
   }
 
   /** Turns the finished cloth to show its other face. */
   turnOver() {
     if (this.phase === "weaving") return;
     this.turnTarget = Math.round(this.turnTarget / Math.PI) * Math.PI + Math.PI;
+    if (this.reducedMotion) this.turn = this.turnTarget; // no slow turn, just show the other side
+    this.dirty = true;
   }
 
   dispose() {
@@ -230,7 +236,11 @@ export class Loom {
   private onPointer = (event: PointerEvent) => {
     const rect = this.container.getBoundingClientRect();
     this.pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, ((event.clientY - rect.top) / rect.height) * 2 - 1);
-    if (this.drag) this.turnTarget = this.drag.turn + (event.clientX - this.drag.x) * 0.012;
+    if (this.drag) {
+      this.turnTarget = this.drag.turn + (event.clientX - this.drag.x) * 0.012;
+      if (this.reducedMotion) this.turn = this.turnTarget;
+      this.dirty = true;
+    }
   };
 
   private onDown = (event: PointerEvent) => {
@@ -245,6 +255,8 @@ export class Loom {
     this.container.style.cursor = "";
     // settle on whichever face is nearer
     this.turnTarget = Math.round(this.turnTarget / Math.PI) * Math.PI;
+    if (this.reducedMotion) this.turn = this.turnTarget;
+    this.dirty = true;
   };
 
   private setSide(side: "front" | "back") {
@@ -264,6 +276,7 @@ export class Loom {
     if (this.camera.aspect > 1.25) this.camera.setViewOffset(w, h, -w * 0.2, 0, w, h);
     else this.camera.clearViewOffset();
     this.camera.updateProjectionMatrix();
+    this.dirty = true;
   }
 
   private x = (col: number) => (col - (this.cols - 1) / 2) * SPACING;
@@ -396,8 +409,11 @@ export class Loom {
 
   private loop = () => {
     this.frame = requestAnimationFrame(this.loop);
-    const dt = Math.min(this.clock.getDelta(), 0.1);
-    const t = this.clock.elapsedTime;
+    if (this.reducedMotion && !this.dirty) return;
+    this.dirty = false;
+    this.timer.update();
+    const dt = Math.min(this.timer.getDelta(), 0.1);
+    const t = this.timer.getElapsed();
     this.uniforms.uTime.value = t;
 
     if (this.phase === "weaving") {
